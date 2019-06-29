@@ -48,6 +48,26 @@ app.get('/user/:id', (req, res) => {
     })
 })
 
+app.get('/tasks', (req, res) => {
+    Task.find({}).then((tasks) => {
+        res.send(tasks)
+    }).catch((e) => {
+        res.status(500).send('Internal server error')
+    })
+})
+
+app.get('/task/:id', (req, res) => {
+    const _id = req.params.id
+    Task.findById(_id).then((task) => {
+        if (!task) {
+            return res.status(404).send('Task not found')
+        }
+        res.send(task)
+    }).catch((e) => {
+        res.status(500).send('Internal server error')
+    })
+})
+
 app.listen(port, () => {
     console.log('Server is running on port' + port);    
 })
