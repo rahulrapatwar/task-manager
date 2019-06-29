@@ -28,6 +28,26 @@ app.post('/task', (req, res) => {
     })
 })
 
+app.get('/users', (req, res) => {
+    User.find({}).then((users) => {
+        res.send(users)
+    }).catch((e) => {
+        res.status(500).send('Internal server error')
+    })
+})
+
+app.get('/user/:id', (req, res) => {
+    const _id = req.params.id
+    User.findById(_id).then((user) => {
+        if (!user) {
+            return res.status(404).send('User not found')
+        }
+        res.send(user)
+    }).catch((e) => {
+        res.status(500).send('Internal server error')
+    })
+})
+
 app.listen(port, () => {
     console.log('Server is running on port' + port);    
 })
