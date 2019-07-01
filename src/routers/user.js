@@ -38,14 +38,18 @@ router.get('/user/:id', async (req, res) => {
 router.patch('/user/:id', async (req, res) => {
     const _id = req.params.id
     const inputFields = Object.keys(req.body)
-    const allowedFields = ['age', 'name', 'email']
+    const allowedFields = ['age', 'name', 'email', 'password']
     const isValidInput = inputFields.every((field) => allowedFields.includes(field))
 
     if (!isValidInput) {
         return res.status(400).send('Invalid fields in request body')
     }
     try {
-        const user = await User.findByIdAndUpdate(_id, req.body, {new: true, runValidators: true})
+        const user = await User.findById(_id)
+
+        inputFields.forEach((field) => user[field] = req.body[field])
+        await user.save()
+
         if (!user) {
             return res.status(404).send()
         }
