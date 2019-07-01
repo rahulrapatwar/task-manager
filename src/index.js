@@ -72,6 +72,46 @@ app.get('/task/:id', async (req, res) => {
     }
 })
 
+app.patch('/user/:id', async (req, res) => {
+    const _id = req.params.id
+    const inputFields = Object.keys(req.body)
+    const allowedFields = ['age', 'name', 'email']
+    const isValidInput = inputFields.every((field) => allowedFields.includes(field))
+
+    if (!isValidInput) {
+        return res.status(400).send('Invalid fields in request body')
+    }
+    try {
+        const user = await User.findByIdAndUpdate(_id, req.body, {new: true, runValidators: true})
+        if (!user) {
+            return res.status(404).send()
+        }
+        res.send(user)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
+
+app.patch('/task/:id', async (req, res) => {
+    const _id = req.params.id
+    const inputFields = Object.keys(req.body)
+    const allowedFields = ['description', 'completed']
+    const isValidInput = inputFields.every((field) => allowedFields.includes(field))
+
+    if (!isValidInput) {
+        return res.status(400).send('Invalid fields in request body')
+    }
+    try {
+        const task = await Task.findByIdAndUpdate(_id, req.body, {new: true, runValidators: true})
+        if (!task) {
+            return res.status(404).send()
+        }
+        res.send(task)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
+
 app.listen(port, () => {
     console.log('Server is running on port' + port);    
 })
