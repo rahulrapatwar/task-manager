@@ -38,6 +38,16 @@ router.post('/user/logout', auth, async (req, res) => {
     }   
 })
 
+router.post('/user/logoutAll', auth, async (req, res) => {
+    try {
+        req.user.tokens = []
+        await req.user.save()
+        res.send('Logged out successfully from all the devices.')
+    } catch (error) {
+        res.send(error)
+    }   
+})
+
 router.get('/users/me', auth, async (req, res) => {
     res.send(req.user)
 })
@@ -55,8 +65,7 @@ router.get('/user/:id', async (req, res) => {
     }
 })
 
-router.patch('/user/:id', async (req, res) => {
-    const _id = req.params.id
+router.patch('/user', auth, async (req, res) => {
     const inputFields = Object.keys(req.body)
     const allowedFields = ['age', 'name', 'email', 'password']
     const isValidInput = inputFields.every((field) => allowedFields.includes(field))
@@ -65,28 +74,19 @@ router.patch('/user/:id', async (req, res) => {
         return res.status(400).send('Invalid fields in request body')
     }
     try {
-        const user = await User.findById(_id)
+        inputFields.forEach((field) => req.user[field] = req.body[field])
+        await req.user.save()
 
-        inputFields.forEach((field) => user[field] = req.body[field])
-        await user.save()
-
-        if (!user) {
-            return res.status(404).send()
-        }
-        res.send(user)
+        res.send(req.user)
     } catch (error) {
         res.status(500).send(error)
     }
 })
 
-router.delete('/user/:id', async (req, res) => {
-    const _id = req.params.id
+router.delete('/user', auth, async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete(_id)
-        if (!user) {
-            return res.status(404).send()
-        }
-        res.send(user)
+        await req.user.remove()
+        res.send(req.user)
     } catch (error) {
         res.status(500).send(error)
     }  
