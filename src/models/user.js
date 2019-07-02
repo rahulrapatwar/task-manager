@@ -45,6 +45,18 @@ const userSchema = mongoose.Schema({
     }]
 })
 
+// Add toJSON to userSchema to hide private data
+userSchema.methods.toJSON = function () {
+    const user = this
+    const userObject = user.toObject()
+    
+    // Delete private data from object
+    delete userObject.password
+    delete userObject.tokens
+    
+    return userObject
+}
+
 userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({email})
     if (!user) {
